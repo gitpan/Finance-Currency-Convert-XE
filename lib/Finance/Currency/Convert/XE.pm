@@ -5,17 +5,22 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION = '0.04';
+$VERSION = '0.05';
 
-### CHANGES #########################################################
+### CHANGES ###############################################################
 #   0.01   20/10/2002   Initial Release
 #   0.02   08/10/2003   complete overhaul of POD and code.
 #						POD updates
 #   0.03   06/11/2003   Renamed upon finding a F:C:C:Yahoo distro
 #   0.04   13/02/2004   Large number format bug, spotted by Alex Pavlovic
-#####################################################################
+#   0.05   04/03/2004   More formatting options available
+#                       Removed all non-Euro currencies for Euro adopted
+#                         countries.
+#                       Currency test bounds increased to +/- 2%
+#                       Currency symbols use HTML entities where known.
+###########################################################################
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 =head1 NAME
 
@@ -47,11 +52,11 @@ site.
 
 =cut
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
-#############################################################################
-#Export Settings															#
-#############################################################################
+###########################################################################
+#Export Settings                                                          #
+###########################################################################
 
 require 5.004;
 require Exporter;
@@ -60,24 +65,24 @@ require Exporter;
 @EXPORT_OK	= qw(currencies convert error);
 @EXPORT		= qw();
 
-#############################################################################
-#Library Modules															#
-#############################################################################
+###########################################################################
+#Library Modules                                                          #
+###########################################################################
 
 use WWW::Mechanize;
 use HTML::TokeParser;
 
-#############################################################################
-#Constants																	#
-#############################################################################
+###########################################################################
+#Constants                                                                #
+###########################################################################
 
 use constant	UCC => 'http://www.xe.com/ucc/';
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
-#############################################################################
-#Interface Functions														#
-#############################################################################
+###########################################################################
+#Interface Functions                                                      #
+###########################################################################
 
 =head1 METHODS
 
@@ -126,10 +131,23 @@ are as follows:
 The format key is optional, and takes one of the following strings:
 
   'number' (returns '12.34')
+  'symbol' (returns '&#163;12.34')
   'text'   (returns '12.34 British Pounds')
+  'abbv'   (returns '12.34 GBP')
 
 If format key is omitted, 'number' is assumed and the converted value 
 is returned.
+
+Note that not all countries have symbols in the standard character set.
+Where known the appropriate currency symbol is used, otherwise the 
+generic currency symbol is used.
+
+It should also be noted that there is a recommendation to use only the
+standardised three letter abbreviation ('abbv' above). However, for
+further reading please see:
+
+  http://www.jhall.demon.co.uk/currency/
+  http://www.jhall.demon.co.uk/currency/by_symbol.html
 
 =cut
 
@@ -153,7 +171,8 @@ sub convert {
 
 	# store later use
 	$self->{code} = $params{target};
-	$self->{name} = $self->{Currency}->{$params{target}};
+	$self->{name} = $self->{Currency}->{$params{target}}->{name};
+	$self->{symbol} = $self->{Currency}->{$params{target}}->{symbol};
 	$self->{format} = $self->_format($params{format});
 
 	# This "feature" is actually useful as a pass-thru filter.
@@ -189,9 +208,9 @@ sub error {
 	return $self->{error};
 }
 
-#############################################################################
-#Internal Functions															#
-#############################################################################
+###########################################################################
+#Internal Functions                                                       #
+###########################################################################
 
 sub _initialize {
 	my($self, %params) = @_;;
@@ -199,8 +218,9 @@ sub _initialize {
 	# Extract the mapping of currencies and their atrributes
 	while(<Finance::Currency::Convert::XE::DATA>){
 		chomp;
-		my ($code,$text) = split ",";
-		$self->{Currency}->{$code} = $text;
+		my ($code,$text,$symbol) = split ",";
+		$self->{Currency}->{$code}->{name} = $text;
+		$self->{Currency}->{$code}->{symbol} = $symbol;
 	}
 
 	return 1;
@@ -211,14 +231,14 @@ sub _format {
 	my($self, $form) = @_;
 
 	my %formats = (
-#		'symbol' => $self->{symbol} . '%s',
-#		'symbol text' => $self->{symbol} . '%s ' . $self->{name},
-		'text' => '%s ' . $self->{name},
-		'number' => '%s',
+		'symbol' => $self->{symbol} . '%.02f',
+		'abbv' => '%.02f ' . $self->{code},
+		'text' => '%.02f ' . $self->{name},
+		'number' => '%.02f',
 	);
 
 	return $formats{$form}	if(defined $form && $formats{$form});
-	return '%s';
+	return '%.02f';
 }
 
 # Extract the text from the html we get back from UCC and return
@@ -259,7 +279,7 @@ sub _extract_text {
 
 1;
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 =back
 
@@ -286,14 +306,9 @@ The full legal document is available at L<http://www.xe.com/legal/>
 
 =head1 TODO
 
-The following formats are proposed for later versions:
-
-  'symbol' => '£12.34'
-  'symbol text' => '£12.34 British Pounds'
-
-However, some currencies do not format their currencies with their
-currency symbol preceeding the values, while others use commas to
-separate their large and small denominations (e.g. 23,45DM)
+Currency symbols are currently specified with a generic symbol, if the
+currency symbol is unknown. Are there any other symbols available in
+Unicode? Let me know if there are.
 
 =head1 AUTHOR
 
@@ -317,78 +332,63 @@ separate their large and small denominations (e.g. 23,45DM)
 
 =cut
 
-#----------------------------------------------------------------------------
+#--------------------------------------------------------------------------
 
 __DATA__
-EUR,Euro
-USD,United States Dollars
-CAD,Canadian Dollars
-GBP,British Pounds
-DEM,German Deutsche Marks
-FRF,French Francs
-JPY,Japanese Yen
-NLG,Dutch Guilders
-ITL,Italian Lire
-CHF,Swiss Francs
-DZD,Algerian Dinars
-ARS,Argentinian Pesos
-AUD,Australian Dollars
-ATS,Austrian Schillings
-BSD,Bahamas Dollars
-BBD,Barbados Dollars
-BEF,Belgium Francs
-BMD,Bermuda Dollars
-BRL,Brazilian Real
-BGL,Bulgarian Leva
-CAD,Canadian Dollars
-CLP,Chilian Pesos
-CNY,Chinese Yuan Renminbi
-CYP,Cypriot Pounds
-CZK,Czech Republic Koruny
-DKK,Denmark Kroner
-EGP,Egyptian Pounds
-FJD,Fijian Dollars
-FIM,Finnish Markkaa
-GRD,Greek Drachmae
-HKD,Hong Kong Dollars
-HUF,Hungarian Forint
-ISK,Icelandic Kronur
-INR,Indian Rupees
-IDR,Indonesian Rupiahs
-IEP,Irish Pounds
-ILS,Israeli New Shekels
-JMD,Jamaican Dollars
-JOD,Jordanian Dinars
-KRW,Korean (South) Won
-LBP,Lebanonese Pounds
-LUF,Luxembourg Francs
-MYR,Malaysian Ringgits
-MXN,Mexican Pesos
-NZD,New Zealand Dollars
-NOK,Norweigan Kroner
-PKR,Pakistani Rupees
-PHP,Philippino Pesos
-PLN,Polish Zlotych
-PTE,Portugese Escudos
-ROL,Romanian Lei
-RUR,Russian Rubles
-SAR,Saudi Arabian Riyals
-SGD,Singapore Dollars
-SKK,Slovakian Koruny
-ZAR,South African Rand
-KRW,South Korean Won
-ESP,Spanish Pesetas
-SDD,Sudanese Dinars
-SEK,Swedish Kronor
-TWD,Taiwan New Dollars
-THB,Thai Baht
-TTD,Trinidad and Tobagoan Dollars
-TRL,Turkish Liras
-VEB,Venezuelan Bolivares
-ZMK,Zambian Kwacha
-XCD,Eastern Caribbean Dollars
-XDR,Special Drawing Right (IMF)
-XAG,Silver Ounces
-XAU,Gold Ounces
-XPD,Palladium Ounces
-XPT,Platinum Ounces
+EUR,Euro,&#8364;
+USD,United States Dollars,$
+CAD,Canadian Dollars,$
+GBP,British Pounds,&#163;
+JPY,Japanese Yen,&#165;
+DZD,Algerian Dinars,&#164;
+ARS,Argentinian Pesos,&#164;
+AUD,Australian Dollars,$
+BSD,Bahamas Dollars,&#164;
+BBD,Barbados Dollars,&#164;
+BMD,Bermuda Dollars,&#164;
+BRL,Brazilian Real,&#164;
+BGL,Bulgarian Leva,&#164;
+CLP,Chilian Pesos,&#164;
+CNY,Chinese Yuan Renminbi,&#164;
+CYP,Cypriot Pounds,&#164;
+CZK,Czech Republic Koruny,&#164;
+DKK,Denmark Kroner,&#164;
+EGP,Egyptian Pounds,&#164;
+FJD,Fijian Dollars,&#164;
+HKD,Hong Kong Dollars,&#164;
+HUF,Hungarian Forint,&#164;
+ISK,Icelandic Kronur,&#164;
+INR,Indian Rupees,&#8360;
+IDR,Indonesian Rupiahs,&#164;
+ILS,Israeli New Shekels,&#8362;
+JMD,Jamaican Dollars,&#164;
+JOD,Jordanian Dinars,&#164;
+LBP,Lebanonese Pounds,&#164;
+MYR,Malaysian Ringgits,&#164;
+MXN,Mexican Pesos,&#164;
+NZD,New Zealand Dollars,&#164;
+NOK,Norweigan Kroner,&#164;
+PKR,Pakistani Rupees,&#8360;
+PHP,Philippino Pesos,&#164;
+PLN,Polish Zlotych,&#164;
+ROL,Romanian Lei,&#164;
+RUR,Russian Rubles,&#164;
+SAR,Saudi Arabian Riyals,&#164;
+SGD,Singapore Dollars,&#164;
+SKK,Slovakian Koruny,&#164;
+ZAR,South African Rand,&#164;
+KRW,South Korean Won,&#8361;
+SDD,Sudanese Dinars,&#164;
+SEK,Swedish Kronor,&#164;
+TWD,Taiwan New Dollars,&#164;
+THB,Thai Baht,&#3647;
+TTD,Trinidad and Tobagoan Dollars,&#164;
+TRL,Turkish Liras,&#164;
+VEB,Venezuelan Bolivares,&#164;
+ZMK,Zambian Kwacha,&#164;
+XCD,Eastern Caribbean Dollars,&#164;
+XDR,Special Drawing Right (IMF),&#164;
+XAG,Silver Ounces,&#164;
+XAU,Gold Ounces,&#164;
+XPD,Palladium Ounces,&#164;
+XPT,Platinum Ounces,&#164;
