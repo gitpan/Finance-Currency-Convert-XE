@@ -5,22 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.07';
-
-### CHANGES ###############################################################
-#   0.01   20/10/2002   Initial Release
-#   0.02   08/10/2003   complete overhaul of POD and code.
-#						POD updates
-#   0.03   06/11/2003   Renamed upon finding a F:C:C:Yahoo distro
-#   0.04   13/02/2004   Large number format bug, spotted by Alex Pavlovic
-#   0.05   04/03/2004   More formatting options available
-#                       Removed all non-Euro currencies for Euro adopted
-#                         countries.
-#                       Currency test bounds increased to +/- 2%
-#                       Currency symbols use HTML entities where known.
-#	0.06	19/04/2004	Test::More added as a prerequisites for PPMs
-#	0.07	07/01/2005	Removed unnecessary Exporter code.
-###########################################################################
+$VERSION = '0.08';
 
 #--------------------------------------------------------------------------
 
@@ -65,6 +50,12 @@ use HTML::TokeParser;
 
 use constant	UCC => 'http://www.xe.com/ucc/';
 
+###########################################################################
+#Variables                                                                #
+###########################################################################
+
+my %currencies;	# only need to load once!
+
 #--------------------------------------------------------------------------
 
 ###########################################################################
@@ -98,7 +89,7 @@ Returns a plain array of the currencies available for conversion.
 
 sub currencies {
 	my $self = shift;
-	return sort keys %{$self->{Currency}};
+	return sort keys %currencies;
 }
 
 =item convert
@@ -142,14 +133,14 @@ sub convert {
 	my ($self, %params) = @_;
 
 	undef $self->{error};
-	unless( exists($self->{Currency}->{$params{source}}) ){
+	unless( exists($currencies{$params{source}}) ){
 		$_ = "Currency \"" . $params{source} . "\" is not available";
 		$self->{error} = $_;
 		warn(__PACKAGE__ . ": " . $_ . "\n");
 		return undef;
 	}
 
-	unless( exists($self->{Currency}->{$params{target}}) ){
+	unless( exists($currencies{$params{target}}) ){
 		$_ =  "Currency \"" . $params{target} . "\" is not available\n";
 		$self->{error} = $_;
 		warn(__PACKAGE__ . ': ' . $_);
@@ -158,8 +149,8 @@ sub convert {
 
 	# store later use
 	$self->{code} = $params{target};
-	$self->{name} = $self->{Currency}->{$params{target}}->{name};
-	$self->{symbol} = $self->{Currency}->{$params{target}}->{symbol};
+	$self->{name} = $currencies{$params{target}}->{name};
+	$self->{symbol} = $currencies{$params{target}}->{symbol};
 	$self->{format} = $self->_format($params{format});
 
 	# This "feature" is actually useful as a pass-thru filter.
@@ -200,14 +191,15 @@ sub error {
 ###########################################################################
 
 sub _initialize {
-	my($self, %params) = @_;;
+	my($self, %params) = @_;
+	return 1	if(keys %currencies);
 
 	# Extract the mapping of currencies and their atrributes
 	while(<Finance::Currency::Convert::XE::DATA>){
 		chomp;
 		my ($code,$text,$symbol) = split ",";
-		$self->{Currency}->{$code}->{name} = $text;
-		$self->{Currency}->{$code}->{symbol} = $symbol;
+		$currencies{$code}->{name} = $text;
+		$currencies{$code}->{symbol} = $symbol;
 	}
 
 	return 1;
@@ -219,8 +211,8 @@ sub _format {
 
 	my %formats = (
 		'symbol' => $self->{symbol} . '%.02f',
-		'abbv' => '%.02f ' . $self->{code},
-		'text' => '%.02f ' . $self->{name},
+		'abbv'   => '%.02f ' . $self->{code},
+		'text'   => '%.02f ' . $self->{name},
 		'number' => '%.02f',
 	);
 
@@ -299,8 +291,8 @@ Unicode? Let me know if there are.
 
 =head1 AUTHOR
 
-  Barbie, E<lt>barbie@cpan.orgE<gt>
-  Miss Barbell Productions, L<http://www.missbarbell.co.uk/>
+Barbie, E<lt>barbie@cpan.orgE<gt>
+Miss Barbell Productions, L<http://www.missbarbell.co.uk/>
 
 =head1 SEE ALSO
 

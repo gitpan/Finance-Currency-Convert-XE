@@ -1,5 +1,9 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.08	01/03/2005
+	- multiple invocations don't work as expected, spotted by 
+	  Marcus Thiesen (via rt).
+
 0.07	07/01/2005
 	- Removed unnecessary Exporter code.
 	- adjusted the Pound to Euro exchange rate in tests
