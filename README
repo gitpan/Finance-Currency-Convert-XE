@@ -1,0 +1,33 @@
+Finance::Currency::Convert::XE
+==============================
+
+This module is a Perl extension for currency conversion available from
+XE.com's Universal Currency Converter (tm) site.
+
+The module was originally named WWW::UCC, but upon discovering the
+distribution Finance::Currency::Convert::Yahoo, felt it would better fit
+into that namespace.
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  WWW::Mechanize
+  HTML::TokeParser
+
+COPYRIGHT AND LICENCE
+
+  Copyright (C) 2002-2003 Barbie for Miss Barbell Productions
+  All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify it 
+under the same terms as Perl itself.

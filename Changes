@@ -1,0 +1,15 @@
+Revision history for Perl extension WWW::UCC.
+
+0.03  Thu Nov  6 09:55:10 GMTST 2003
+	- name change from WWW::UCC to Finance::Currency::Convert::XE upon 
+	  discovering the distribution Finance::Currency::Convert::Yahoo 
+	  on CPAN.
+	- Fixed the README text
+
+0.02  Wed Oct  8 13:04:18 GMTDT 2003
+	- complete overhaul of POD and code (now with WWW::Mechanize).
+	- POD updates
+	- more tests
+
+0.01  Wed Nov 20 10:08:47 2002
+	- original version

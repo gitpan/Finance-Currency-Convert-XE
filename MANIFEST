@@ -1,0 +1,8 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+lib/Finance/Currency/Convert/XE.pm
+t/01basic.t
+t/10object.t
+META.yml                                Module meta-data (added by MakeMaker)
