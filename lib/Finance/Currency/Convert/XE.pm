@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ### CHANGES ###############################################################
 #   0.01   20/10/2002   Initial Release
@@ -18,6 +18,7 @@ $VERSION = '0.05';
 #                         countries.
 #                       Currency test bounds increased to +/- 2%
 #                       Currency symbols use HTML entities where known.
+#	0.06	19/04/2004	Test::More added as a prerequisites for PPMs
 ###########################################################################
 
 #--------------------------------------------------------------------------
@@ -25,10 +26,6 @@ $VERSION = '0.05';
 =head1 NAME
 
 Finance::Currency::Convert::XE - Currency conversion module.
-
-=head1 ABSTRACT
-
-An online currency conversion module.
 
 =head1 SYNOPSIS
 
