@@ -17,7 +17,7 @@ use Test::More tests => 22;
 	is($currencies[56],'ZMK');
 
 	# offset is approx 2% each way
-	my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
+	my ($start,$final,$offset,$value) = ('10000.00',14500,300,0);
 
 	$value = $obj->convert(
                   'source' => 'GBP',

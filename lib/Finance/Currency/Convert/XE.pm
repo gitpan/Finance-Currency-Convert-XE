@@ -4,8 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION = '0.06';
+use vars qw($VERSION);
+$VERSION = '0.07';
 
 ### CHANGES ###############################################################
 #   0.01   20/10/2002   Initial Release
@@ -19,6 +19,7 @@ $VERSION = '0.06';
 #                       Currency test bounds increased to +/- 2%
 #                       Currency symbols use HTML entities where known.
 #	0.06	19/04/2004	Test::More added as a prerequisites for PPMs
+#	0.07	07/01/2005	Removed unnecessary Exporter code.
 ###########################################################################
 
 #--------------------------------------------------------------------------
@@ -30,7 +31,7 @@ Finance::Currency::Convert::XE - Currency conversion module.
 =head1 SYNOPSIS
 
   use Finance::Currency::Convert::XE;
-  my $obj = new Finance::Currency::Convert::XE()	
+  my $obj = Finance::Currency::Convert::XE->new()	
              || die "Failed to create object\n" ;
 
   my $value = $obj->convert(
@@ -50,17 +51,6 @@ site.
 =cut
 
 #--------------------------------------------------------------------------
-
-###########################################################################
-#Export Settings                                                          #
-###########################################################################
-
-require 5.004;
-require Exporter;
-
-@ISA		= qw(Exporter);
-@EXPORT_OK	= qw(currencies convert error);
-@EXPORT		= qw();
 
 ###########################################################################
 #Library Modules                                                          #
@@ -321,7 +311,7 @@ Unicode? Let me know if there are.
 
 =head1 COPYRIGHT
 
-  Copyright (C) 2002-2004 Barbie for Miss Barbell Productions
+  Copyright (C) 2002-2005 Barbie for Miss Barbell Productions
   All Rights Reserved.
 
   This module is free software; you can redistribute it and/or 
