@@ -1,5 +1,8 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.09	04/03/2005
+	- POD updates.
+
 0.08	01/03/2005
 	- multiple invocations don't work as expected, spotted by 
 	  Marcus Thiesen (via rt).

@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 #--------------------------------------------------------------------------
 
@@ -289,21 +289,30 @@ Currency symbols are currently specified with a generic symbol, if the
 currency symbol is unknown. Are there any other symbols available in
 Unicode? Let me know if there are.
 
-=head1 AUTHOR
-
-Barbie, E<lt>barbie@cpan.orgE<gt>
-Miss Barbell Productions, L<http://www.missbarbell.co.uk/>
-
 =head1 SEE ALSO
 
   WWW::Mechanize
   HTML::TokeParser
 
-  perl(1)
+=head1 BUGS, PATCHES & FIXES
+
+There are no known bugs at the time of this release. However, if you spot a
+bug or are experiencing difficulties, that is not explained within the POD
+documentation, please send an email to barbie@cpan.org or submit a bug to the
+RT system (http://rt.cpan.org/). However, it would help greatly if you are 
+able to pinpoint problems or even supply a patch. 
+
+Fixes are dependant upon their severity and my availablity. Should a fix not
+be forthcoming, please feel free to (politely) remind me.
+
+=head1 AUTHOR
+
+  Barbie, <barbie@cpan.org>
+  for Miss Barbell Productions <http://www.missbarbell.co.uk>.
 
 =head1 COPYRIGHT
 
-  Copyright (C) 2002-2005 Barbie for Miss Barbell Productions
+  Copyright (C) 2002-2005 Barbie for Miss Barbell Productions.
   All Rights Reserved.
 
   This module is free software; you can redistribute it and/or 
