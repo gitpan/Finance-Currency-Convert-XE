@@ -5,13 +5,14 @@ use strict;
 use warnings;
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK);
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ### CHANGES #########################################################
 #   0.01   20/10/2002   Initial Release
 #   0.02   08/10/2003   complete overhaul of POD and code.
 #						POD updates
 #   0.03   06/11/2003   Renamed upon finding a F:C:C:Yahoo distro
+#   0.04   13/02/2004   Large number format bug, spotted by Alex Pavlovic
 #####################################################################
 
 #----------------------------------------------------------------------------
@@ -20,10 +21,15 @@ $VERSION = '0.03';
 
 Finance::Currency::Convert::XE - Currency conversion module.
 
+=head1 ABSTRACT
+
+An online currency conversion module.
+
 =head1 SYNOPSIS
 
   use Finance::Currency::Convert::XE;
-  my $obj = new Finance::Currency::Convert::XE()	|| die "Failed to create object\n" ;
+  my $obj = new Finance::Currency::Convert::XE()	
+             || die "Failed to create object\n" ;
 
   my $value = $obj->convert(
                   'source' => 'GBP',
@@ -36,7 +42,8 @@ Finance::Currency::Convert::XE - Currency conversion module.
 
 =head1 DESCRIPTION
 
-Currency conversion module using XE.com's Universal Currency Converter (tm) site.
+Currency conversion module using XE.com's Universal Currency Converter (tm)
+site.
 
 =cut
 
@@ -125,15 +132,6 @@ If format key is omitted, 'number' is assumed and the converted value
 is returned.
 
 =cut
-
-# The following formats are proposed for later versions:
-#
-# 'symbol' => '£12.34'
-# 'symbol text' => '£12.34 British Pounds'
-#
-# However, some currencies do not format their currencies with their
-# currency symbol preceeding the values, while others use commas to
-# separate their large and small denominations (e.g. 23,45DM)
 
 sub convert {
 	my ($self, %params) = @_;
@@ -248,8 +246,11 @@ sub _extract_text {
 	while (my $token = $p->get_token) {
 		my $text = $p->get_trimmed_text;
 
-		return sprintf $self->{format}, $1
-			if($text =~ /([\d\.]+) $self->{code}/);
+		my ($value) = ($text =~ /([\d\.\,]+) $self->{code}/);
+		if($value) {
+			$value =~ s/,//g;
+			return sprintf $self->{format}, $value;
+		}
 	}
 
 	# didn't find anything
@@ -283,6 +284,17 @@ is only permitted under the terms stipulated by XE.com.
 
 The full legal document is available at L<http://www.xe.com/legal/>
 
+=head1 TODO
+
+The following formats are proposed for later versions:
+
+  'symbol' => '£12.34'
+  'symbol text' => '£12.34 British Pounds'
+
+However, some currencies do not format their currencies with their
+currency symbol preceeding the values, while others use commas to
+separate their large and small denominations (e.g. 23,45DM)
+
 =head1 AUTHOR
 
   Barbie, E<lt>barbie@cpan.orgE<gt>
@@ -297,7 +309,7 @@ The full legal document is available at L<http://www.xe.com/legal/>
 
 =head1 COPYRIGHT
 
-  Copyright (C) 2002-2003 Barbie for Miss Barbell Productions
+  Copyright (C) 2002-2004 Barbie for Miss Barbell Productions
   All Rights Reserved.
 
   This module is free software; you can redistribute it and/or 

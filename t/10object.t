@@ -16,7 +16,7 @@ use Test::More tests => 12;
 	is($currencies[24],'GBP');
 	is($currencies[69],'ZMK');
 
-	my ($start,$final,$offset,$value) = ('100.00',140,10);
+	my ($start,$final,$offset,$value) = ('10000.00',14750,50);
 
 	$value = $obj->convert(
                   'source' => 'GBP',
@@ -25,23 +25,23 @@ use Test::More tests => 12;
                   'format' => 'number');
 
 	# have to account for currency fluctuations
-	is($value > ($final - $offset),1);
-	is($value < ($final + $offset),1);
+	cmp_ok($value, ">", ($final - $offset));
+	cmp_ok($value, "<", ($final + $offset));
 
 	$value = $obj->convert(
                   'source' => 'GBP',
                   'target' => 'EUR',
                   'value'  => $start,
                   'format' => 'text');
-	ok(($value =~ /\d+\.\d+ Euro/ ? 1 : 0));
+	like($value,qr/\d+\.\d+ Euro/);
 
 	$value = $obj->convert(
                   'source' => 'GBP',
                   'target' => 'EUR',
                   'value'  => $start);
 	# have to account for currency fluctuations
-	is($value > ($final - $offset),1);
-	is($value < ($final + $offset),1);
+	cmp_ok($value, ">", ($final - $offset));
+	cmp_ok($value, "<", ($final + $offset));
 
 	$value = $obj->convert(
                   'source' => 'GBP',
@@ -54,7 +54,7 @@ use Test::More tests => 12;
                   'target' => 'GBP',
                   'value'  => $start,
                   'format' => 'text');
-	ok(($value =~ /\d+\.\d+ British Pounds/ ? 1 : 0));
+	like($value,qr/\d+\.\d+ British Pounds/);
 
 ###########################################################
 

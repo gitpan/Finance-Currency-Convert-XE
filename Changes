@@ -1,4 +1,10 @@
-Revision history for Perl extension WWW::UCC.
+Revision history for Perl extension Finance::Currency::Convert::XE.
+
+0.04  Fri Feb 13 11:28:31 GMTST 2004
+	- Large number format bug, spotted by Alex Pavlovic.
+	- changed tests to use bigger numbers
+	- updated tests to use like and cmp_ok
+	- added pod tests
 
 0.03  Thu Nov  6 09:55:10 GMTST 2003
 	- name change from WWW::UCC to Finance::Currency::Convert::XE upon 

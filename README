@@ -19,14 +19,19 @@ To install this module type the following:
 
 DEPENDENCIES
 
-This module requires these other modules and libraries:
+This module requires these other modules:
 
   WWW::Mechanize
   HTML::TokeParser
 
+For optional testing the module would like these other modules:
+
+  Test::Pod
+  Test::Pod::Coverage
+
 COPYRIGHT AND LICENCE
 
-  Copyright (C) 2002-2003 Barbie for Miss Barbell Productions
+  Copyright (C) 2002-2004 Barbie for Miss Barbell Productions
   All Rights Reserved.
 
 This module is free software; you can redistribute it and/or modify it 
