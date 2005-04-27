@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 #--------------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ sub _format {
 
 # Extract the text from the html we get back from UCC and return
 # it (keying on the fact that what we want is in the table after
-# the midmarket link).
+# the faq link).
 sub _extract_text {
 	my($self, $html) = @_;
 
@@ -231,10 +231,10 @@ sub _extract_text {
 	my $found = 0;
 	my $tag;
 
-	# look for the mid market link
+	# look for the faq link
 	while(!$found) {
 		return undef	unless($tag = $p->get_tag('a'));
-		$found = 1	if(defined $tag->[1]{href} && $tag->[1]{href} =~ /midmarket/);
+		$found = 1	if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
 	}
 
 	# jump to the next table
