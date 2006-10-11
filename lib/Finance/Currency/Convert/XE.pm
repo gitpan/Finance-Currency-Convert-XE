@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 #--------------------------------------------------------------------------
 
@@ -17,14 +17,33 @@ Finance::Currency::Convert::XE - Currency conversion module.
 
   use Finance::Currency::Convert::XE;
   my $obj = Finance::Currency::Convert::XE->new()	
-             || die "Failed to create object\n" ;
+                || die "Failed to create object\n" ;
 
   my $value = $obj->convert(
-                  'source' => 'GBP',
-                  'target' => 'EUR',
-                  'value' => '123.45',
-                  'format' => 'text'
-           ) || die "Could not convert: " . $obj->error . "\n";
+                    'source' => 'GBP',
+                    'target' => 'EUR',
+                    'value' => '123.45',
+                    'format' => 'text'
+            )   || die "Could not convert: " . $obj->error . "\n";
+
+  my @currencies = $obj->currencies;
+
+or
+
+  use Finance::Currency::Convert::XE;
+  my $obj = Finance::Currency::Convert::XE->new(
+                    'source' => 'GBP',
+                    'target' => 'EUR',
+                    'format' => 'text'
+            )   || die "Failed to create object\n" ;
+
+  my $value = $obj->convert(
+                    'value' => '123.45',
+                    'format' => 'abbv'
+           )   || die "Could not convert: " . $obj->error . "\n";
+
+  $value = $obj->convert('123.45')
+                || die "Could not convert: " . $obj->error . "\n";
 
   my @currencies = $obj->currencies;
 
@@ -55,6 +74,9 @@ use constant	UCC => 'http://www.xe.com/ucc/';
 ###########################################################################
 
 my %currencies;	# only need to load once!
+my @defaults = ('source', 'target', 'format');
+
+my $web = WWW::Mechanize->new();
 
 #--------------------------------------------------------------------------
 
@@ -68,16 +90,18 @@ my %currencies;	# only need to load once!
 
 =item new
 
-Creates a new Finance::Currency::Convert::XE object.
+Creates a new Finance::Currency::Convert::XE object. Can be supplied with
+default values for source and target currency, and the format required of the
+output. These can be overridden in the convert() method.
 
 =cut
 
 sub new {
 	my ($this, @args) = @_;
-	my $class = ref($this) || $this;
+    my $class = ref($this) || $this;
 	my $self = {};
 	bless $self, $class;
-	return undef unless( $self->_initialize(@args) );
+	$self->_initialize(@args);
 	return $self;
 }
 
@@ -116,6 +140,10 @@ The format key is optional, and takes one of the following strings:
 If format key is omitted, 'number' is assumed and the converted value 
 is returned.
 
+If only a value is passed, it is assumed that this is the value to be 
+converted and the remaining parameters will be defined by the defaults set
+in the constructor. Note that no internal defaults are assumed.
+
 Note that not all countries have symbols in the standard character set.
 Where known the appropriate currency symbol is used, otherwise the 
 generic currency symbol is used.
@@ -130,38 +158,48 @@ further reading please see:
 =cut
 
 sub convert {
-	my ($self, %params) = @_;
+	my $self = shift;
+    my %params = @_ > 1 ? @_ : (value => $_[0]);
+    $params{$_} ||= $self->{$_} for(@defaults);
 
 	undef $self->{error};
-	unless( exists($currencies{$params{source}}) ){
-		$_ = "Currency \"" . $params{source} . "\" is not available";
-		$self->{error} = $_;
-		warn(__PACKAGE__ . ": " . $_ . "\n");
-		return undef;
+	unless( $params{source} ){
+		$self->{error} = 'Source currency is blank. This parameter is required';
+		return;
+	}
+
+    unless( exists($currencies{$params{source}}) ){
+		$self->{error} = 'Source currency "' . $params{source} . '" is not available';
+		return;
+	}
+
+	unless( $params{target} ){
+		$self->{error} = 'Target currency is blank. This parameter is required';
+		return;
 	}
 
 	unless( exists($currencies{$params{target}}) ){
-		$_ =  "Currency \"" . $params{target} . "\" is not available\n";
-		$self->{error} = $_;
-		warn(__PACKAGE__ . ': ' . $_);
-		return undef;
+		$self->{error} = 'Target currency "' . $params{target} . '" is not available';
+		return;
 	}
 
 	# store later use
 	$self->{code} = $params{target};
 	$self->{name} = $currencies{$params{target}}->{name};
 	$self->{symbol} = $currencies{$params{target}}->{symbol};
-	$self->{format} = $self->_format($params{format});
+	$self->{string} = $self->_format($params{format});
 
 	# This "feature" is actually useful as a pass-thru filter.
 	if( $params{source} eq $params{target} ) {
-		return sprintf $self->{format}, $params{value}
+		return sprintf $self->{string}, $params{value}
 	}
 
 	# get the base site
-	my $web = new WWW::Mechanize;
 	$web->get( UCC );
-	return undef	unless($web->success());
+	unless($web->success()) {
+		$self->{error} = 'Unable to retrieve webpage';
+		return;
+	}
 
 	# complete and submit the form
 	$web->submit_form(
@@ -169,7 +207,10 @@ sub convert {
 			fields => {	'From' => $params{source}, 
 						'To' => $params{target}, 
 						'Amount' => $params{value} } );
-	return undef	unless($web->success());
+	unless($web->success()) {
+		$self->{error} = 'Unable to retrieve webform';
+		return;
+	}
 
 	# return the converted value
 	return $self->_extract_text($web->content());
@@ -192,7 +233,11 @@ sub error {
 
 sub _initialize {
 	my($self, %params) = @_;
-	return 1	if(keys %currencies);
+    # set defaults
+    $self->{$_} = $params{$_}   for(@defaults);
+
+    return	if(keys %currencies);
+    local($_);
 
 	# Extract the mapping of currencies and their atrributes
 	while(<Finance::Currency::Convert::XE::DATA>){
@@ -202,7 +247,7 @@ sub _initialize {
 		$currencies{$code}->{symbol} = $symbol;
 	}
 
-	return 1;
+	return;
 }
 
 # Formats the return string to the requirements of the caller
@@ -216,7 +261,7 @@ sub _format {
 		'number' => '%.02f',
 	);
 
-	return $formats{$form}	if(defined $form && $formats{$form});
+	return $formats{$form}	            if(defined $form && $formats{$form});
 	return '%.02f';
 }
 
@@ -225,35 +270,30 @@ sub _format {
 # the faq link).
 sub _extract_text {
 	my($self, $html) = @_;
-
+	my $tag;
 	my $p = HTML::TokeParser->new(\$html);
 
-	my $found = 0;
-	my $tag;
-
 	# look for the faq link
-	while(!$found) {
-		return undef	unless($tag = $p->get_tag('a'));
-		$found = 1	if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
+	while(1) {
+		return	unless($tag = $p->get_tag('a'));
+		last	if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
 	}
 
 	# jump to the next table
 	$tag = $p->get_tag('table');
 
-
 	# from there look for the target value
-	while (my $token = $p->get_token) {
+	while($p->get_token) {
 		my $text = $p->get_trimmed_text;
 
-		my ($value) = ($text =~ /([\d\.\,]+) $self->{code}/);
-		if($value) {
+		if(my ($value) = $text =~ /([\d\.\,]+) $self->{code}/) {
 			$value =~ s/,//g;
-			return sprintf $self->{format}, $value;
+			return sprintf $self->{string}, $value;
 		}
 	}
 
 	# didn't find anything
-	return undef;
+	return;
 }
 
 1;

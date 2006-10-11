@@ -1,5 +1,15 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.11	11/10/2006
+	- fixed bug #20646, spotted by Dan Brook (BROQ).
+	- simplified some areas of code.
+	- new() can now be passed defaults.
+	- convert() can now be passed a single value.
+	- updated the conversion rate in 10object.t
+	- removed warn() calls as the error() should be used.
+	- more tests
+	- Devel::Cover = 92.5%
+
 0.10	27/04/2005
         - link fix (website changed) as spotted by Menno Blom
 
