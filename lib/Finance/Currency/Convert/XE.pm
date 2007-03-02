@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 #--------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ Finance::Currency::Convert::XE - Currency conversion module.
 =head1 SYNOPSIS
 
   use Finance::Currency::Convert::XE;
-  my $obj = Finance::Currency::Convert::XE->new()	
+  my $obj = Finance::Currency::Convert::XE->new()   
                 || die "Failed to create object\n" ;
 
   my $value = $obj->convert(
@@ -52,6 +52,16 @@ or
 Currency conversion module using XE.com's Universal Currency Converter (tm)
 site.
 
+WARNING: Do not use this module for any commercial purposes, unless you have 
+obtain an explicit license to use the service provided by XE.com. For further 
+details please read the Terms and Conditions available at L<http://www.xe.com>.
+
+=over
+
+=item * http://www.xe.com/errors/noautoextract.htm
+
+=back
+
 =cut
 
 #--------------------------------------------------------------------------
@@ -67,16 +77,17 @@ use HTML::TokeParser;
 #Constants                                                                #
 ###########################################################################
 
-use constant	UCC => 'http://www.xe.com/ucc/';
+use constant    UCC => 'http://www.xe.com/';
 
 ###########################################################################
 #Variables                                                                #
 ###########################################################################
 
-my %currencies;	# only need to load once!
+my %currencies; # only need to load once!
 my @defaults = ('source', 'target', 'format');
 
 my $web = WWW::Mechanize->new();
+$web->agent_alias( 'Windows Mozilla' );
 
 #--------------------------------------------------------------------------
 
@@ -97,12 +108,12 @@ output. These can be overridden in the convert() method.
 =cut
 
 sub new {
-	my ($this, @args) = @_;
+    my ($this, @args) = @_;
     my $class = ref($this) || $this;
-	my $self = {};
-	bless $self, $class;
-	$self->_initialize(@args);
-	return $self;
+    my $self = {};
+    bless $self, $class;
+    $self->_initialize(@args);
+    return $self;
 }
 
 =item currencies
@@ -112,8 +123,8 @@ Returns a plain array of the currencies available for conversion.
 =cut
 
 sub currencies {
-	my $self = shift;
-	return sort keys %currencies;
+    my $self = shift;
+    return sort keys %currencies;
 }
 
 =item convert
@@ -158,62 +169,62 @@ further reading please see:
 =cut
 
 sub convert {
-	my $self = shift;
+    my $self = shift;
     my %params = @_ > 1 ? @_ : (value => $_[0]);
     $params{$_} ||= $self->{$_} for(@defaults);
 
-	undef $self->{error};
-	unless( $params{source} ){
-		$self->{error} = 'Source currency is blank. This parameter is required';
-		return;
-	}
+    undef $self->{error};
+    unless( $params{source} ){
+        $self->{error} = 'Source currency is blank. This parameter is required';
+        return;
+    }
 
     unless( exists($currencies{$params{source}}) ){
-		$self->{error} = 'Source currency "' . $params{source} . '" is not available';
-		return;
-	}
+        $self->{error} = 'Source currency "' . $params{source} . '" is not available';
+        return;
+    }
 
-	unless( $params{target} ){
-		$self->{error} = 'Target currency is blank. This parameter is required';
-		return;
-	}
+    unless( $params{target} ){
+        $self->{error} = 'Target currency is blank. This parameter is required';
+        return;
+    }
 
-	unless( exists($currencies{$params{target}}) ){
-		$self->{error} = 'Target currency "' . $params{target} . '" is not available';
-		return;
-	}
+    unless( exists($currencies{$params{target}}) ){
+        $self->{error} = 'Target currency "' . $params{target} . '" is not available';
+        return;
+    }
 
-	# store later use
-	$self->{code} = $params{target};
-	$self->{name} = $currencies{$params{target}}->{name};
-	$self->{symbol} = $currencies{$params{target}}->{symbol};
-	$self->{string} = $self->_format($params{format});
+    # store later use
+    $self->{code} = $params{target};
+    $self->{name} = $currencies{$params{target}}->{name};
+    $self->{symbol} = $currencies{$params{target}}->{symbol};
+    $self->{string} = $self->_format($params{format});
 
-	# This "feature" is actually useful as a pass-thru filter.
-	if( $params{source} eq $params{target} ) {
-		return sprintf $self->{string}, $params{value}
-	}
+    # This "feature" is actually useful as a pass-thru filter.
+    if( $params{source} eq $params{target} ) {
+        return sprintf $self->{string}, $params{value}
+    }
 
-	# get the base site
-	$web->get( UCC );
-	unless($web->success()) {
-		$self->{error} = 'Unable to retrieve webpage';
-		return;
-	}
+    # get the base site
+    $web->get( UCC );
+    unless($web->success()) {
+        $self->{error} = 'Unable to retrieve webpage';
+        return;
+    }
 
-	# complete and submit the form
-	$web->submit_form(
-			form_name => 'ucc',
-			fields => {	'From' => $params{source}, 
-						'To' => $params{target}, 
-						'Amount' => $params{value} } );
-	unless($web->success()) {
-		$self->{error} = 'Unable to retrieve webform';
-		return;
-	}
+    # complete and submit the form
+    $web->submit_form(
+            form_name => 'quick',
+            fields    => { 'From'   => $params{source}, 
+                           'To'     => $params{target}, 
+                           'Amount' => $params{value} } );
+    unless($web->success()) {
+        $self->{error} = 'Unable to retrieve webform';
+        return;
+    }
 
-	# return the converted value
-	return $self->_extract_text($web->content());
+    # return the converted value
+    return $self->_extract_text($web->content());
 }
 
 =item error
@@ -223,8 +234,8 @@ Returns a (hopefully) meaningful error string.
 =cut
 
 sub error {
-	my $self = shift;
-	return $self->{error};
+    my $self = shift;
+    return $self->{error};
 }
 
 ###########################################################################
@@ -232,68 +243,68 @@ sub error {
 ###########################################################################
 
 sub _initialize {
-	my($self, %params) = @_;
+    my($self, %params) = @_;
     # set defaults
     $self->{$_} = $params{$_}   for(@defaults);
 
-    return	if(keys %currencies);
+    return  if(keys %currencies);
     local($_);
 
-	# Extract the mapping of currencies and their atrributes
-	while(<Finance::Currency::Convert::XE::DATA>){
-		chomp;
-		my ($code,$text,$symbol) = split ",";
-		$currencies{$code}->{name} = $text;
-		$currencies{$code}->{symbol} = $symbol;
-	}
+    # Extract the mapping of currencies and their atrributes
+    while(<Finance::Currency::Convert::XE::DATA>){
+        chomp;
+        my ($code,$text,$symbol) = split ",";
+        $currencies{$code}->{name} = $text;
+        $currencies{$code}->{symbol} = $symbol;
+    }
 
-	return;
+    return;
 }
 
 # Formats the return string to the requirements of the caller
 sub _format {
-	my($self, $form) = @_;
+    my($self, $form) = @_;
 
-	my %formats = (
-		'symbol' => $self->{symbol} . '%.02f',
-		'abbv'   => '%.02f ' . $self->{code},
-		'text'   => '%.02f ' . $self->{name},
-		'number' => '%.02f',
-	);
+    my %formats = (
+        'symbol' => $self->{symbol} . '%.02f',
+        'abbv'   => '%.02f ' . $self->{code},
+        'text'   => '%.02f ' . $self->{name},
+        'number' => '%.02f',
+    );
 
-	return $formats{$form}	            if(defined $form && $formats{$form});
-	return '%.02f';
+    return $formats{$form}              if(defined $form && $formats{$form});
+    return '%.02f';
 }
 
 # Extract the text from the html we get back from UCC and return
 # it (keying on the fact that what we want is in the table after
 # the faq link).
 sub _extract_text {
-	my($self, $html) = @_;
-	my $tag;
-	my $p = HTML::TokeParser->new(\$html);
+    my($self, $html) = @_;
+    my $tag;
+    my $p = HTML::TokeParser->new(\$html);
 
-	# look for the faq link
-	while(1) {
-		return	unless($tag = $p->get_tag('a'));
-		last	if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
-	}
+    # look for the faq link
+    while(1) {
+        return  unless($tag = $p->get_tag('a'));
+        last    if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
+    }
 
-	# jump to the next table
-	$tag = $p->get_tag('table');
+    # jump to the next table
+    $tag = $p->get_tag('table');
 
-	# from there look for the target value
-	while($p->get_token) {
-		my $text = $p->get_trimmed_text;
+    # from there look for the target value
+    while($p->get_token) {
+        my $text = $p->get_trimmed_text;
 
-		if(my ($value) = $text =~ /([\d\.\,]+) $self->{code}/) {
-			$value =~ s/,//g;
-			return sprintf $self->{string}, $value;
-		}
-	}
+        if(my ($value) = $text =~ /([\d\.\,]+) $self->{code}/) {
+            $value =~ s/,//g;
+            return sprintf $self->{string}, $value;
+        }
+    }
 
-	# didn't find anything
-	return;
+    # didn't find anything
+    return;
 }
 
 1;
@@ -334,16 +345,19 @@ Unicode? Let me know if there are.
   WWW::Mechanize
   HTML::TokeParser
 
-=head1 BUGS, PATCHES & FIXES
+=head1 SUPPORT
 
 There are no known bugs at the time of this release. However, if you spot a
-bug or are experiencing difficulties, that is not explained within the POD
-documentation, please send an email to barbie@cpan.org or submit a bug to the
-RT system (http://rt.cpan.org/). However, it would help greatly if you are 
-able to pinpoint problems or even supply a patch. 
+bug or are experiencing difficulties that are not explained within the POD
+documentation, please submit a bug to the RT system (see link below). However,
+it would help greatly if you are able to pinpoint problems or even supply a 
+patch. 
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
-be forthcoming, please feel free to (politely) remind me.
+be forthcoming, please feel free to (politely) remind me by sending an email
+to barbie@cpan.org .
+
+RT: L<http://rt.cpan.org/Public/Dist/Display.html?Name=Finance-Currency-Convert-XE>
 
 =head1 AUTHOR
 
@@ -352,11 +366,14 @@ be forthcoming, please feel free to (politely) remind me.
 
 =head1 COPYRIGHT
 
-  Copyright (C) 2002-2005 Barbie for Miss Barbell Productions.
-  All Rights Reserved.
+  Copyright © 2002-2007 Barbie for Miss Barbell Productions.
 
-  This module is free software; you can redistribute it and/or 
-  modify it under the same terms as Perl itself.
+  This library is free software; you can redistribute it and/or modify it under
+  the same terms as Perl itself, using the Artistic License.
+
+The full text of the licenses can be found in the Artistic file included with 
+this distribution, or in perlartistic file as part of Perl installation, in 
+the 5.8.1 release or later.
 
 =cut
 

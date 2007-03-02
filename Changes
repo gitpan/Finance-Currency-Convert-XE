@@ -1,5 +1,18 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.12	02/03/2007
+	- Form name has changed in the few days to 'quick'
+	- Updated POD to emphasise the need to obtain a valid license from 
+	  XE.com before you are allowed to use their service for all commercial
+	  uses.
+	- Handwritten META.yml to conform to current specs.
+	- Changed all instances of LICENCE to LICENSE.
+	- Added META.yml test script.
+	- Added LICENSE and Artistic files.
+	- Added an examples directory. Nothing in it yet, except a request
+	  for interesting scripts.
+	- POD/README updates
+
 0.11	11/10/2006
 	- fixed bug #20646, spotted by Dan Brook (BROQ).
 	- simplified some areas of code.
