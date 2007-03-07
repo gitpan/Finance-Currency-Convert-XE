@@ -3,7 +3,7 @@ use strict;
 
 use lib 't';
 
-use Test::More tests => 34;
+use Test::More tests => 36;
 use Finance::Currency::Convert::XE;
 
 ###########################################################
@@ -21,7 +21,8 @@ my %format_tests = (
 );
 
 # offset is approx 2% each way
-my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
+my ($start,$final,$offset) = ('10000.00',14800,300);
+my ($value,$error);
 
 ###########################################################
 
@@ -30,10 +31,10 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
 	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
 
 	my @currencies = $obj->currencies;
-	is(scalar(@currencies),57,'... correct number of currencies');
-	is($currencies[0] ,'ARS','... valid currency: first');
-	is($currencies[17],'GBP','... valid currency: GBP');
-	is($currencies[56],'ZMK','... valid currency: last');
+	is(scalar(@currencies),82,'... correct number of currencies');
+	is($currencies[0] ,'AED','... valid currency: first');
+	is($currencies[27],'GBP','... valid currency: GBP');
+	is($currencies[81],'ZMK','... valid currency: last');
 
 	$value = $obj->convert(
                   'source' => 'GBP',
@@ -41,32 +42,48 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
                   'value'  => $start,
                   'format' => 'number');
 
-	# have to account for currency fluctuations
-	cmp_ok($value, ">", ($final - $offset),'... conversion above lower limit');
-	cmp_ok($value, "<", ($final + $offset),'... conversion above upper limit');
-	like($value,qr/^\d+\.\d+$/,'... conversion matches a number');
+    $error = $obj->error;
+    SKIP: {
+        skip $error, 3  if(!$value && $error =~ /Unable to retrieve/);
+
+        # have to account for currency fluctuations
+        cmp_ok($value, ">", ($final - $offset),'... conversion above lower limit');
+        cmp_ok($value, "<", ($final + $offset),'... conversion above upper limit');
+        like($value,qr/^\d+\.\d+$/,'... conversion matches a number');
+    }
 
 	$value = $obj->convert(
                   'source' => 'GBP',
                   'target' => 'EUR',
                   'value'  => $start,
                   'format' => 'text');
-	like($value,qr/\d+\.\d+ Euro/,'... conversion matches a text pattern');
+
+    $error = $obj->error;
+    SKIP: {
+        skip $error, 1  if(!$value && $error =~ /Unable to retrieve/);
+
+    	like($value,qr/\d+\.\d+ Euro/,'... conversion matches a text pattern');
+    }
 
 	$value = $obj->convert(
                   'source' => 'GBP',
                   'target' => 'EUR',
                   'value'  => $start);
-	# have to account for currency fluctuations
-	cmp_ok($value, ">", ($final - $offset),'... default format conversion above lower limit');
-	cmp_ok($value, "<", ($final + $offset),'... default format conversion above upper limit');
-	like($value,qr/^\d+\.\d+$/,'... default format conversion matches a number');
+    $error = $obj->error;
+    SKIP: {
+        skip $error, 3  if(!$value && $error =~ /Unable to retrieve/);
+
+        # have to account for currency fluctuations
+        cmp_ok($value, ">", ($final - $offset),'... default format conversion above lower limit');
+        cmp_ok($value, "<", ($final + $offset),'... default format conversion above upper limit');
+        like($value,qr/^\d+\.\d+$/,'... default format conversion matches a number');
+    }
 
 	$value = $obj->convert(
                   'source' => 'GBP',
                   'target' => 'GBP',
                   'value'  => $start);
-	is($value,$start,'... no conversion, should be the same');
+   	is($value,$start,'... no conversion, should be the same');
 
 	foreach my $curr (keys %format_tests) {
 		foreach my $form (keys %{$format_tests{$curr}}) {
@@ -75,7 +92,12 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
 						  'target' => $curr,
 						  'value'  => $start,
 						  'format' => $form);
-			like($value,$format_tests{$curr}->{$form},"... format test: $curr/$form");
+            $error = $obj->error;
+            SKIP: {
+                skip $error, 1  if(!$value && $error =~ /Unable to retrieve/);
+
+    			like($value,$format_tests{$curr}->{$form},"... format test: $curr/$form");
+            }
 		}
 	}
 }
@@ -88,11 +110,32 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
 	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
 
 	$value = $obj->convert($start);
+    $error = $obj->error;
+    SKIP: {
+        skip $error, 3  if(!$value && $error =~ /Unable to retrieve/);
 
-	# have to account for currency fluctuations
-	cmp_ok($value, ">", ($final - $offset),'... defaults conversion above lower limit');
-	cmp_ok($value, "<", ($final + $offset),'... defaults conversion above upper limit');
-	like($value,qr/^\d+\.\d+$/,'... defaults conversion matches a number');
+        # have to account for currency fluctuations
+        cmp_ok($value, ">", ($final - $offset),'... defaults conversion above lower limit');
+        cmp_ok($value, "<", ($final + $offset),'... defaults conversion above upper limit');
+        like($value,qr/^\d+\.\d+$/,'... defaults conversion matches a number');
+    }
+}
+
+{
+	my $obj = Finance::Currency::Convert::XE->new(
+                  'source' => 'GBP',
+                  'target' => 'ARS',
+                  'format' => 'number');
+	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
+
+	$value = $obj->convert($start);
+    $error = $obj->error;
+    SKIP: {
+        skip $error, 1  if(!$value && $error =~ /Unable to retrieve/);
+
+        # Apparently ARS has been causing problems
+        like($value,qr/^\d+\.\d+$/,'... defaults conversion matches a number');
+    }
 }
 
 {
@@ -101,6 +144,7 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
     $value = $obj->convert($start);
     is( $value, undef, '... blank source');
     like( $obj->error, qr/Source currency is blank/, '... blank source (error method)');
+
     $value = $obj->convert(value => $start, source => 'GBP');
     is( $value, undef, '... blank target');
     like( $obj->error, qr/Target currency is blank/, '... blank target (error method)');
@@ -108,6 +152,7 @@ my ($start,$final,$offset,$value) = ('10000.00',14800,300,0);
     $value = $obj->convert(value => $start, source => 'bogus');
     is( $value, undef, '... bogus source');
     like( $obj->error, qr/is not available/, '... bogus source (error method)');
+
     $value = $obj->convert(value => $start, source => 'GBP', target => 'bogus');
     is( $value, undef, '... bogus target');
     like( $obj->error, qr/is not available/, '... bogus target (error method)');

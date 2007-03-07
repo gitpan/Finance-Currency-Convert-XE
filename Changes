@@ -1,5 +1,11 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.13	07/03/2007
+	- Added support for more currencies.
+	- reverted back to original form, as the quick version doesn't support 
+	  many currencies.
+	- added error checking to tests
+
 0.12	02/03/2007
 	- Form name has changed in the few days to 'quick'
 	- Updated POD to emphasise the need to obtain a valid license from 

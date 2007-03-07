@@ -4,7 +4,7 @@ use strict;
 use lib './t';
 use Test::More tests => 2;
 
-my $num = 57;	# number of currencies stored
+my $num = 82;	# number of currencies stored
 
 ###########################################################
 

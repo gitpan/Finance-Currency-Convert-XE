@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 #--------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ use HTML::TokeParser;
 #Constants                                                                #
 ###########################################################################
 
-use constant    UCC => 'http://www.xe.com/';
+use constant    UCC => 'http://www.xe.com/ucc';
 
 ###########################################################################
 #Variables                                                                #
@@ -214,7 +214,7 @@ sub convert {
 
     # complete and submit the form
     $web->submit_form(
-            form_name => 'quick',
+            form_name => 'ucc',
             fields    => { 'From'   => $params{source}, 
                            'To'     => $params{target}, 
                            'Amount' => $params{value} } );
@@ -385,55 +385,80 @@ USD,United States Dollars,$
 CAD,Canadian Dollars,$
 GBP,British Pounds,&#163;
 JPY,Japanese Yen,&#165;
-DZD,Algerian Dinars,&#164;
+AED,United Arab Emirates Dirhams,#164;
+AFN,Afghanistan Afghanis,#164;
+ALL,Albania Leke,#164;
 ARS,Argentinian Pesos,&#164;
 AUD,Australian Dollars,$
-BSD,Bahamas Dollars,&#164;
 BBD,Barbados Dollars,&#164;
+BDT,Bangladesh Taka,#164;
+BGL,Bulgarian Leva,&#164;
+BGN,Bulgaria Leva,#164;
+BHD,Bahrain Dinars,#164;
 BMD,Bermuda Dollars,&#164;
 BRL,Brazilian Real,&#164;
-BGL,Bulgarian Leva,&#164;
+BSD,Bahamas Dollars,&#164;
 CLP,Chilian Pesos,&#164;
 CNY,Chinese Yuan Renminbi,&#164;
+COP,Colombia Pesos,#164;
+CRC,Costa Rica Colones,#164;
 CYP,Cypriot Pounds,&#164;
 CZK,Czech Republic Koruny,&#164;
 DKK,Denmark Kroner,&#164;
+DOP,Dominican Republic Pesos,#164;
+DZD,Algerian Dinars,&#164;
+EEK,Estonia Krooni,#164;
 EGP,Egyptian Pounds,&#164;
 FJD,Fijian Dollars,&#164;
 HKD,Hong Kong Dollars,&#164;
 HUF,Hungarian Forint,&#164;
-ISK,Icelandic Kronur,&#164;
-INR,Indian Rupees,&#8360;
 IDR,Indonesian Rupiahs,&#164;
 ILS,Israeli New Shekels,&#8362;
+INR,Indian Rupees,&#8360;
+IQD,Iraq Dinars,#164;
+IRR,Iran Rials,#164;
+ISK,Icelandic Kronur,&#164;
 JMD,Jamaican Dollars,&#164;
 JOD,Jordanian Dinars,&#164;
+KES,Kenya Shillings,#164;
+KRW,South Korean Won,&#8361;
+KWD,Kuwait Dinars,#164;
 LBP,Lebanonese Pounds,&#164;
-MYR,Malaysian Ringgits,&#164;
+LKR,Sri Lanka Rupees,#164;
+MAD,Morocco Dirhams,#164;
+MUR,Mauritius Rupees,#164;
 MXN,Mexican Pesos,&#164;
-NZD,New Zealand Dollars,&#164;
+MYR,Malaysian Ringgits,&#164;
 NOK,Norweigan Kroner,&#164;
-PKR,Pakistani Rupees,&#8360;
+NZD,New Zealand Dollars,&#164;
+OMR,Oman Rials,#164;
+PEN,Peru Nuevos Soles,#164;
 PHP,Philippino Pesos,&#164;
+PKR,Pakistani Rupees,&#8360;
 PLN,Polish Zlotych,&#164;
+QAR,Qatar Riyals,#164;
 ROL,Romanian Lei,&#164;
+RON,Romania New Lei,#164;
 RUR,Russian Rubles,&#164;
 SAR,Saudi Arabian Riyals,&#164;
-SGD,Singapore Dollars,&#164;
-SKK,Slovakian Koruny,&#164;
-ZAR,South African Rand,&#164;
-KRW,South Korean Won,&#8361;
 SDD,Sudanese Dinars,&#164;
 SEK,Swedish Kronor,&#164;
-TWD,Taiwan New Dollars,&#164;
+SGD,Singapore Dollars,&#164;
+SIT,Slovenia Tolars,#164;
+SKK,Slovakian Koruny,&#164;
 THB,Thai Baht,&#3647;
-TTD,Trinidad and Tobagoan Dollars,&#164;
+TND,Tunisia Dinars,#164;
 TRL,Turkish Liras,&#164;
+TRY,Turkey New Lira,#164;
+TTD,Trinidad and Tobagoan Dollars,&#164;
+TWD,Taiwan New Dollars,&#164;
 VEB,Venezuelan Bolivares,&#164;
-ZMK,Zambian Kwacha,&#164;
-XCD,Eastern Caribbean Dollars,&#164;
-XDR,Special Drawing Right (IMF),&#164;
+VND,Vietnam Dong,#164;
 XAG,Silver Ounces,&#164;
 XAU,Gold Ounces,&#164;
+XCD,Eastern Caribbean Dollars,&#164;
+XDR,Special Drawing Right (IMF),&#164;
 XPD,Palladium Ounces,&#164;
 XPT,Platinum Ounces,&#164;
+ZAR,South African Rand,&#164;
+ZMK,Zambian Kwacha,&#164;
