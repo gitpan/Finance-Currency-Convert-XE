@@ -1,5 +1,9 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.14	29/10/2007
+	- fixed tests to allow for more fluctuation in current exchange rates
+	  compared to future exchange rates. 
+
 0.13	07/03/2007
 	- Added support for more currencies.
 	- reverted back to original form, as the quick version doesn't support 

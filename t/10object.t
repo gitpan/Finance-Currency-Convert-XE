@@ -20,8 +20,8 @@ my %format_tests = (
 				'abbv'		=> qr/\d+\.\d+ ZMK/ },
 );
 
-# offset is approx 2% each way
-my ($start,$final,$offset) = ('10000.00',14800,300);
+# offset hopefully allows for a large degree fluctuation
+my ($start,$final,$offset) = ('10000.00',14500,1000);
 my ($value,$error);
 
 ###########################################################
