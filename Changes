@@ -1,5 +1,12 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.15	17/03/2008
+	- added approximately 90 new currencies
+	- added an add_currency method to allow the user to dynamically 
+	  extend the currency list if required. (Brian Mills)
+	- switched to Test-CPAN-Meta for testing
+	- added AUTOMATED_TESTING checks to packaging tests.
+
 0.14	29/10/2007
 	- fixed tests to allow for more fluctuation in current exchange rates
 	  compared to future exchange rates. 
@@ -7,7 +14,7 @@ Revision history for Perl extension Finance::Currency::Convert::XE.
 0.13	07/03/2007
 	- Added support for more currencies.
 	- reverted back to original form, as the quick version doesn't support 
-	  many currencies.
+	  many currencies. (viva_peter@yahoo.co.uk)
 	- added error checking to tests
 
 0.12	02/03/2007

@@ -3,25 +3,25 @@ use strict;
 
 use lib 't';
 
-use Test::More tests => 36;
+use Test::More tests => 43;
 use Finance::Currency::Convert::XE;
 
 ###########################################################
 
 my %format_tests = (
-	'GBP' => {	'text'		=> qr/\d+\.\d+ British Pounds/,
+	'GBP' => {	'text'		=> qr/\d+\.\d+ Great Britain, Pound/,
 				'symbol'	=> qr/&#163;\d+\.\d+/,
 				'abbv'		=> qr/\d+\.\d+ GBP/ },
 	'EUR' => {	'text'		=> qr/\d+\.\d+ Euro/,
 				'symbol'	=> qr/&#8364;\d+\.\d+/,
 				'abbv'		=> qr/\d+\.\d+ EUR/ },
-	'ZMK' => {	'text'		=> qr/\d+\.\d+ Zambian Kwacha/,
+	'ZMK' => {	'text'		=> qr/\d+\.\d+ Zambia, Kwacha/,
 				'symbol'	=> qr/&#164;\d+\.\d+/,
 				'abbv'		=> qr/\d+\.\d+ ZMK/ },
 );
 
 # offset hopefully allows for a large degree fluctuation
-my ($start,$final,$offset) = ('10000.00',14500,1000);
+my ($start,$final,$offset) = ('10000.00',12500,1000);
 my ($value,$error);
 
 ###########################################################
@@ -31,10 +31,10 @@ my ($value,$error);
 	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
 
 	my @currencies = $obj->currencies;
-	is(scalar(@currencies),82,'... correct number of currencies');
-	is($currencies[0] ,'AED','... valid currency: first');
-	is($currencies[27],'GBP','... valid currency: GBP');
-	is($currencies[81],'ZMK','... valid currency: last');
+	is(scalar(@currencies),170,'... correct number of currencies');
+	is($currencies[0],  'AED','... valid currency: first');
+	is($currencies[47], 'GBP','... valid currency: GBP');
+	is($currencies[169],'ZWD','... valid currency: last');
 
 	$value = $obj->convert(
                   'source' => 'GBP',
@@ -160,3 +160,33 @@ my ($value,$error);
 
 ###########################################################
 
+{
+	my $obj = Finance::Currency::Convert::XE->new();
+	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
+
+	my @currencies = $obj->currencies;
+	is(scalar(@currencies),170,'... correct number of currencies');
+
+    $obj->add_currencies(
+                    ZZZ => {text => 'An Example', symbol => '$'},
+                    ZZY => {text => 'Testing'} );
+	@currencies = $obj->currencies;
+	is(scalar(@currencies),172,'... correct number of currencies');
+
+	is($currencies[170],'ZZY','... valid currency: new penultimate');
+	is($currencies[171],'ZZZ','... valid currency: new last');
+
+	my $value = $obj->convert(
+			  'source' => 'ZZY',
+			  'target' => 'ZZY',
+			  'value'  => 5,
+			  'format' => 'symbol');
+    is($value,'&#164;5.00');
+
+    $value = $obj->convert(
+			  'source' => 'ZZY',
+			  'target' => 'ZZY',
+			  'value'  => 5,
+			  'format' => 'text');
+    is($value,'5.00 Testing');
+}

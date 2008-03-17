@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 #--------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ Finance::Currency::Convert::XE - Currency conversion module.
 =head1 SYNOPSIS
 
   use Finance::Currency::Convert::XE;
-  my $obj = Finance::Currency::Convert::XE->new()   
+  my $obj = Finance::Currency::Convert::XE->new()
                 || die "Failed to create object\n" ;
 
   my $value = $obj->convert(
@@ -52,8 +52,8 @@ or
 Currency conversion module using XE.com's Universal Currency Converter (tm)
 site.
 
-WARNING: Do not use this module for any commercial purposes, unless you have 
-obtain an explicit license to use the service provided by XE.com. For further 
+WARNING: Do not use this module for any commercial purposes, unless you have
+obtain an explicit license to use the service provided by XE.com. For further
 details please read the Terms and Conditions available at L<http://www.xe.com>.
 
 =over
@@ -127,6 +127,37 @@ sub currencies {
     return sort keys %currencies;
 }
 
+=item add_currencies
+
+Allows the user to add currencies to the internal hash. Currencies can be added
+as per the code below:
+
+    $self->add_currencies(
+                    ZZZ => {text => 'An Example', symbol => '$'},
+                    ZZY => {text => 'Testing'} );
+
+Note that unless otherwise stated, the symbol will be set to '&#164;'. The code
+used must be 3 characters in length, and a text part must be included.
+
+=cut
+
+sub add_currencies {
+    my ($self,%hash) = @_;
+    for my $code (keys %hash) {
+        if($code =~ /[A-Z]{3}/i) {
+            $code = uc $code;
+            if($hash{$code}->{text}) {
+                $currencies{$code}->{name}   = $hash{$code}->{text}   || die;
+                $currencies{$code}->{symbol} = $hash{$code}->{symbol} || '&#164;';
+            } else {
+                $self->{error} = "User currency '$code' has no text part";
+            }
+        } else {
+            $self->{error} = "User currency '$code' is invalid";
+        }
+    }
+}
+
 =item convert
 
 Converts some currency value into another using XE.com's UCC.
@@ -145,18 +176,18 @@ The format key is optional, and takes one of the following strings:
 
   'number' (returns '12.34')
   'symbol' (returns '&#163;12.34')
-  'text'   (returns '12.34 British Pounds')
+  'text'   (returns '12.34 Great Britain, Pound')
   'abbv'   (returns '12.34 GBP')
 
-If format key is omitted, 'number' is assumed and the converted value 
+If format key is omitted, 'number' is assumed and the converted value
 is returned.
 
-If only a value is passed, it is assumed that this is the value to be 
+If only a value is passed, it is assumed that this is the value to be
 converted and the remaining parameters will be defined by the defaults set
 in the constructor. Note that no internal defaults are assumed.
 
 Note that not all countries have symbols in the standard character set.
-Where known the appropriate currency symbol is used, otherwise the 
+Where known the appropriate currency symbol is used, otherwise the
 generic currency symbol is used.
 
 It should also be noted that there is a recommendation to use only the
@@ -215,8 +246,8 @@ sub convert {
     # complete and submit the form
     $web->submit_form(
             form_name => 'ucc',
-            fields    => { 'From'   => $params{source}, 
-                           'To'     => $params{target}, 
+            fields    => { 'From'   => $params{source},
+                           'To'     => $params{target},
                            'Amount' => $params{value} } );
     unless($web->success()) {
         $self->{error} = 'Unable to retrieve webform';
@@ -253,7 +284,7 @@ sub _initialize {
     # Extract the mapping of currencies and their atrributes
     while(<Finance::Currency::Convert::XE::DATA>){
         chomp;
-        my ($code,$text,$symbol) = split ",";
+        my ($code,$text,$symbol) = split "¬";
         $currencies{$code}->{name} = $text;
         $currencies{$code}->{symbol} = $symbol;
     }
@@ -317,15 +348,15 @@ sub _extract_text {
 
 XE.com have a Terms of Use policy that states:
 
-  This website is for informational purposes only and is not intended to 
-  provide specific commercial, financial, investment, accounting, tax, or 
-  legal advice. It is provided to you solely for your own personal, 
-  non-commercial use and not for purposes of resale, distribution, public 
-  display or performance, or any other uses by you in any form or manner 
-  whatsoever. Unless otherwise indicated on this website, you may display, 
-  download, archive, and print a single copy of any information on this 
-  website, or otherwise distributed from XE.com, for such personal, 
-  non-commercial use, provided it is done pursuant to the User Conduct and 
+  This website is for informational purposes only and is not intended to
+  provide specific commercial, financial, investment, accounting, tax, or
+  legal advice. It is provided to you solely for your own personal,
+  non-commercial use and not for purposes of resale, distribution, public
+  display or performance, or any other uses by you in any form or manner
+  whatsoever. Unless otherwise indicated on this website, you may display,
+  download, archive, and print a single copy of any information on this
+  website, or otherwise distributed from XE.com, for such personal,
+  non-commercial use, provided it is done pursuant to the User Conduct and
   Obligations set forth herein.
 
 As such this software is for personal use ONLY. No liability is accepted by
@@ -350,8 +381,8 @@ Unicode? Let me know if there are.
 There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties that are not explained within the POD
 documentation, please submit a bug to the RT system (see link below). However,
-it would help greatly if you are able to pinpoint problems or even supply a 
-patch. 
+it would help greatly if you are able to pinpoint problems or even supply a
+patch.
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
 be forthcoming, please feel free to (politely) remind me by sending an email
@@ -366,13 +397,13 @@ RT: L<http://rt.cpan.org/Public/Dist/Display.html?Name=Finance-Currency-Convert-
 
 =head1 COPYRIGHT
 
-  Copyright © 2002-2007 Barbie for Miss Barbell Productions.
+  Copyright © 2002-2008 Barbie for Miss Barbell Productions.
 
   This library is free software; you can redistribute it and/or modify it under
   the same terms as Perl itself, using the Artistic License.
 
-The full text of the licenses can be found in the Artistic file included with 
-this distribution, or in perlartistic file as part of Perl installation, in 
+The full text of the licenses can be found in the Artistic file included with
+this distribution, or in perlartistic file as part of Perl installation, in
 the 5.8.1 release or later.
 
 =cut
@@ -380,85 +411,175 @@ the 5.8.1 release or later.
 #--------------------------------------------------------------------------
 
 __DATA__
-EUR,Euro,&#8364;
-USD,United States Dollars,$
-CAD,Canadian Dollars,$
-GBP,British Pounds,&#163;
-JPY,Japanese Yen,&#165;
-AED,United Arab Emirates Dirhams,#164;
-AFN,Afghanistan Afghanis,#164;
-ALL,Albania Leke,#164;
-ARS,Argentinian Pesos,&#164;
-AUD,Australian Dollars,$
-BBD,Barbados Dollars,&#164;
-BDT,Bangladesh Taka,#164;
-BGL,Bulgarian Leva,&#164;
-BGN,Bulgaria Leva,#164;
-BHD,Bahrain Dinars,#164;
-BMD,Bermuda Dollars,&#164;
-BRL,Brazilian Real,&#164;
-BSD,Bahamas Dollars,&#164;
-CLP,Chilian Pesos,&#164;
-CNY,Chinese Yuan Renminbi,&#164;
-COP,Colombia Pesos,#164;
-CRC,Costa Rica Colones,#164;
-CYP,Cypriot Pounds,&#164;
-CZK,Czech Republic Koruny,&#164;
-DKK,Denmark Kroner,&#164;
-DOP,Dominican Republic Pesos,#164;
-DZD,Algerian Dinars,&#164;
-EEK,Estonia Krooni,#164;
-EGP,Egyptian Pounds,&#164;
-FJD,Fijian Dollars,&#164;
-HKD,Hong Kong Dollars,&#164;
-HUF,Hungarian Forint,&#164;
-IDR,Indonesian Rupiahs,&#164;
-ILS,Israeli New Shekels,&#8362;
-INR,Indian Rupees,&#8360;
-IQD,Iraq Dinars,#164;
-IRR,Iran Rials,#164;
-ISK,Icelandic Kronur,&#164;
-JMD,Jamaican Dollars,&#164;
-JOD,Jordanian Dinars,&#164;
-KES,Kenya Shillings,#164;
-KRW,South Korean Won,&#8361;
-KWD,Kuwait Dinars,#164;
-LBP,Lebanonese Pounds,&#164;
-LKR,Sri Lanka Rupees,#164;
-MAD,Morocco Dirhams,#164;
-MUR,Mauritius Rupees,#164;
-MXN,Mexican Pesos,&#164;
-MYR,Malaysian Ringgits,&#164;
-NOK,Norweigan Kroner,&#164;
-NZD,New Zealand Dollars,&#164;
-OMR,Oman Rials,#164;
-PEN,Peru Nuevos Soles,#164;
-PHP,Philippino Pesos,&#164;
-PKR,Pakistani Rupees,&#8360;
-PLN,Polish Zlotych,&#164;
-QAR,Qatar Riyals,#164;
-ROL,Romanian Lei,&#164;
-RON,Romania New Lei,#164;
-RUR,Russian Rubles,&#164;
-SAR,Saudi Arabian Riyals,&#164;
-SDD,Sudanese Dinars,&#164;
-SEK,Swedish Kronor,&#164;
-SGD,Singapore Dollars,&#164;
-SIT,Slovenia Tolars,#164;
-SKK,Slovakian Koruny,&#164;
-THB,Thai Baht,&#3647;
-TND,Tunisia Dinars,#164;
-TRL,Turkish Liras,&#164;
-TRY,Turkey New Lira,#164;
-TTD,Trinidad and Tobagoan Dollars,&#164;
-TWD,Taiwan New Dollars,&#164;
-VEB,Venezuelan Bolivares,&#164;
-VND,Vietnam Dong,#164;
-XAG,Silver Ounces,&#164;
-XAU,Gold Ounces,&#164;
-XCD,Eastern Caribbean Dollars,&#164;
-XDR,Special Drawing Right (IMF),&#164;
-XPD,Palladium Ounces,&#164;
-XPT,Platinum Ounces,&#164;
-ZAR,South African Rand,&#164;
-ZMK,Zambian Kwacha,&#164;
+AED¬United Arab Emirates, Dirham¬&#164;
+AFN¬Afghanistan, Afghani¬&#164;
+ALL¬Albania, Lek¬&#164;
+AMD¬Armenia, Dram¬&#164;
+ANG¬Netherlands Antilles Guilder¬&#164;
+AOA¬Angola, Kwanza¬&#164;
+ARS¬Argentina, Peso¬&#164;
+AUD¬Australia, Dollar¬$
+AWG¬Aruba, Guilder¬&#164;
+AZN¬Azerbaijan, New Manat¬&#164;
+BAM¬Bosnia and Herzegovina, Convertible Marka¬&#164;
+BBD¬Barbados, Dollar¬&#164;
+BDT¬Bangladesh, Taka¬&#164;
+BGN¬Bulgaria, Lev¬&#164;
+BHD¬Bahrain, Dinar¬&#164;
+BIF¬Burundi, Franc¬&#164;
+BMD¬Bermuda, Dollar¬&#164;
+BND¬Brunei, Dollar¬&#164;
+BOB¬Bolivia, Boliviano¬&#164;
+BRL¬Brazil, Real¬&#164;
+BSD¬Bahamas, Dollar¬&#164;
+BTN¬Bhutan, Ngultrum¬&#164;
+BWP¬Botswana, Pula¬&#164;
+BYR¬Belarus, Ruble¬&#164;
+BZD¬Belize, Dollar¬&#164;
+CAD¬Canada, Dollar¬$
+CDF¬Congo/Kinshasa, Franc¬&#164;
+CHF¬Switzerland, Franc¬&#164;
+CLP¬Chile, Peso¬&#164;
+CNY¬China, Yuan Renminbi¬&#164;
+COP¬Colombia, Peso¬&#164;
+CRC¬Costa Rica, Colon¬&#164;
+CUC¬Cuba, Convertible Peso¬&#164;
+CUP¬Cuba, Peso¬&#164;
+CVE¬Cape Verde, Escudo¬&#164;
+CZK¬Czech Republic, Koruna¬&#164;
+DJF¬Djibouti, Franc¬&#164;
+DKK¬Denmark, Krone¬&#164;
+DOP¬Dominican Republic, Peso¬&#164;
+DZD¬Algeria, Dinar¬&#164;
+EEK¬Estonia, Kroon¬&#164;
+EGP¬Egypt, Pound¬&#164;
+ERN¬Eritrea, Nakfa¬&#164;
+ETB¬Ethiopia, Birr¬&#164;
+EUR¬Euro¬&#8364;
+FJD¬Fiji, Dollar¬&#164;
+FKP¬Falkland Islands, Pound¬&#164;
+GBP¬Great Britain, Pound¬&#163;
+GEL¬Georgia, Lari¬&#164;
+GGP¬Guernsey, Pound¬&#164;
+GHS¬Ghana, Cedi¬&#164;
+GIP¬Gibraltar, Pound¬&#164;
+GMD¬Gambia, Dalasi¬&#164;
+GNF¬Guinea, Franc¬&#164;
+GTQ¬Guatemala, Quetzal¬&#164;
+GYD¬Guyana, Dollar¬&#164;
+HKD¬Hong Kong, Dollar¬&#164;
+HNL¬Honduras, Lempira¬&#164;
+HRK¬Croatia, Kuna¬&#164;
+HTG¬Haiti, Gourde¬&#164;
+HUF¬Hungary, Forint¬&#164;
+IDR¬Indonesia, Rupiah¬&#164;
+ILS¬Israel, New Shekel¬&#8362;
+IMP¬Isle of Man, Pound¬&#164;
+INR¬India, Rupee¬&#8360;
+IQD¬Iraq, Dinar¬&#164;
+IRR¬Iran, Rial¬&#164;
+ISK¬Iceland, Krona¬&#164;
+JEP¬Jersey, Pound¬&#164;
+JMD¬Jamaica, Dollar¬&#164;
+JOD¬Jordan, Dinar¬&#164;
+JPY¬Japan, Yen¬&#165;
+KES¬Kenya, Shilling¬&#164;
+KGS¬Kyrgyzstan, Som¬&#164;
+KHR¬Cambodia, Riel¬&#164;
+KMF¬Comoros, Franc¬&#164;
+KPW¬North Korea, Won¬&#164;
+KRW¬South Korea, Won¬&#8361;
+KWD¬Kuwait, Dinar¬&#164;
+KYD¬Cayman Islands, Dollar¬&#164;
+KZT¬Kazakhstan, Tenge¬&#164;
+LAK¬Laos, Kip¬&#164;
+LBP¬Lebanon, Pound¬&#164;
+LKR¬Sri Lanka, Rupee¬&#164;
+LRD¬Liberia, Dollar¬&#164;
+LSL¬Lesotho, Loti¬&#164;
+LTL¬Lithuania, Litas¬&#164;
+LVL¬Latvia, Lat¬&#164;
+LYD¬Libya, Dinar¬&#164;
+MAD¬Morocco, Dirham¬&#164;
+MDL¬Moldova, Leu¬&#164;
+MGA¬Madagascar, Ariary¬&#164;
+MKD¬Macedonia, Denar¬&#164;
+MMK¬Burma, Kyat¬&#164;
+MMK¬Myanmar, Kyat¬&#164;
+MNT¬Mongolia, Tughrik¬&#164;
+MOP¬Macau, Pataca¬&#164;
+MRO¬Mauritania, Ouguiya¬&#164;
+MUR¬Mauritius, Rupee¬&#164;
+MVR¬Maldives, Rufiyaa¬&#164;
+MWK¬Malawi, Kwacha¬&#164;
+MXN¬Mexico, Peso¬&#164;
+MYR¬Malaysia, Ringgit¬&#164;
+MZN¬Mozambique, Metical¬&#164;
+NAD¬Namibia, Dollar¬&#164;
+NGN¬Nigeria, Naira¬&#164;
+NIO¬Nicaragua, Cordoba¬&#164;
+NOK¬Norway, Krone¬&#164;
+NPR¬Nepal, Rupee¬&#164;
+NZD¬New Zealand, Dollar¬&#164;
+OMR¬Oman, Rial¬&#164;
+PAB¬Panama, Balboa¬&#164;
+PEN¬Peru, Nuevo Sol¬&#164;
+PGK¬Papua New Guinea, Kina¬&#164;
+PHP¬Philippines, Peso¬&#164;
+PKR¬Pakistan, Rupee¬&#8360;
+PLN¬Poland, Zloty¬&#164;
+PYG¬Paraguay, Guarani¬&#164;
+QAR¬Qatar, Riyal¬&#164;
+RON¬Romania, New Leu¬&#164;
+RSD¬Serbia, Dinar¬&#164;
+RUB¬Russia, Ruble¬&#164;
+RWF¬Rwanda, Franc¬&#164;
+SAR¬Saudi Arabia, Riyal¬&#164;
+SBD¬Solomon Islands, Dollar¬&#164;
+SCR¬Seychelles, Rupee¬&#164;
+SDG¬Sudan, Pound¬&#164;
+SEK¬Sweden, Krona¬&#164;
+SGD¬Singapore, Dollar¬&#164;
+SHP¬Saint Helena, Pound¬&#164;
+SKK¬Slovakia, Koruna¬&#164;
+SLL¬Sierra Leone, Leone¬&#164;
+SOS¬Somalia, Shilling¬&#164;
+SPL¬Seborga, Luigino¬&#164;
+SRD¬Suriname, Dollar¬&#164;
+STD¬São Tome and Principe, Dobra¬&#164;
+SVC¬El Salvador, Colon¬&#164;
+SYP¬Syria, Pound¬&#164;
+SZL¬Swaziland, Lilangeni¬&#164;
+THB¬Thailand, Baht¬&#3647;
+TJS¬Tajikistan, Somoni¬&#164;
+TMM¬Turkmenistan, Manat¬&#164;
+TND¬Tunisia, Dinar¬&#164;
+TOP¬Tonga, Pa'anga¬&#164;
+TRY¬Turkey, New Lira¬&#164;
+TTD¬Trinidad and Tobago, Dollar¬&#164;
+TVD¬Tuvalu, Dollar¬&#164;
+TWD¬Taiwan, New Dollar¬&#164;
+TZS¬Tanzania, Shilling¬&#164;
+UAH¬Ukraine, Hryvna¬&#164;
+UGX¬Uganda, Shilling¬&#164;
+USD¬United States, Dollar¬$
+UYU¬Uruguay, Peso¬&#164;
+UZS¬Uzbekistan, Som¬&#164;
+VEF¬Venezuela, Bolivar Fuerte¬&#164;
+VND¬Vietnam, Dong¬&#164;
+VUV¬Vanuatu, Vatu¬&#164;
+WST¬Samoa, Tala¬&#164;
+WST¬Western Samoa, Tala¬&#164;
+XAF¬CFA Communauté Financière Africaine BEAC Franc¬&#164;
+XAG¬Silver Ounce¬&#164;
+XAU¬Gold Ounce¬&#164;
+XCD¬East Caribbean Dollar¬&#164;
+XDR¬International Monetary Fund Special Drawing Right¬&#164;
+XOF¬CFA Communauté Financière Africaine BCEAO Franc¬&#164;
+XPD¬Palladium Ounce¬&#164;
+XPF¬Comptoirs Français du Pacifique Franc¬&#164;
+XPT¬Platinum Ounce¬&#164;
+YER¬Yemen, Rial¬&#164;
+ZAR¬South Africa, Rand¬&#164;
+ZMK¬Zambia, Kwacha¬&#164;
+ZWD¬Zimbabwe, Dollar¬&#164;
