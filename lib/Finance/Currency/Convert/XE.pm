@@ -1,11 +1,10 @@
 package Finance::Currency::Convert::XE;
 
-use 5.006;
 use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 #--------------------------------------------------------------------------
 
@@ -283,7 +282,7 @@ sub _initialize {
 
     # Extract the mapping of currencies and their atrributes
     while(<Finance::Currency::Convert::XE::DATA>){
-        chomp;
+        s/\s*$//;
         my ($code,$text,$symbol) = split "¬";
         $currencies{$code}->{name} = $text;
         $currencies{$code}->{symbol} = $symbol;
