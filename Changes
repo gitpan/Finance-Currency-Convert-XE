@@ -1,5 +1,8 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
 
+0.18    02/04/2011
+        - changed form_name=>ucc to form_number=>2 in order to match new xe.net site
+
 0.17    14/03/2011
         - updated documentation.
         - added META.json and supporting tests.
