@@ -1,5 +1,6 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
-
+0.21	17/07/2012
+	- patch to fix new html layout - thanks to Michael
 0.20	19/06/2012
 	- change useragent
 0.19    02/04/2011

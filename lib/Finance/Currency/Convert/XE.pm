@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 #--------------------------------------------------------------------------
 
@@ -315,22 +315,24 @@ sub _extract_text {
     my $tag;
     my $p = HTML::TokeParser->new(\$html);
 
-    # look for the faq link
-    while(1) {
-        return  unless($tag = $p->get_tag('a'));
-        last    if(defined $tag->[1]{href} && $tag->[1]{href} =~ /faq/);
-    }
+    # first look for the 'td' element
+    while (1) {
+        return unless ($tag = $p->get_tag('td'));
+        next unless (defined($tag->[1]{'align'}) && ($tag->[1]{'align'} eq 'left'));
+        # this will probably be the value
+        my $value = $p->get_trimmed_text;
 
-    # jump to the next table
-    $tag = $p->get_tag('table');
-
-    # from there look for the target value
-    while($p->get_token) {
-        my $text = $p->get_trimmed_text;
-
-        if(my ($value) = $text =~ /([\d\.\,]+) $self->{code}/) {
-            $value =~ s/,//g;
-            return sprintf $self->{string}, $value;
+        # then make sure this has the 'span' with the target
+        # currency code
+        my $tag2 = $p->get_tag('span');
+        my $cd = $p->get_trimmed_text;
+        if (defined($tag2) && defined($tag2->[1]{'class'} && $tag2->[1]{class} eq 'uccResCde'
+)) {
+            if ($cd eq $self->{code}) {
+                # found it, return
+                $value =~ s/,//g;
+                return sprintf $self->{string}, $value;
+            }
         }
     }
 
