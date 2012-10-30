@@ -243,13 +243,31 @@ sub convert {
         return;
     }
 
+	my @forms = $web->forms();
+	my $form_number = 1;
+	my $found = 0;
+
+	foreach my $form (@forms) {
+		if ($form->action eq 'http://www.xe.com/ucc/convert/') {
+			$found = 1;
+			last;
+		}
+
+		$form_number++;
+	}
+
+	if ($found) {
     # complete and submit the form
     $web->submit_form(
-            form_number => 2,
+            form_number => $form_number,
             fields    => { 'From'   => $params{source},
                            'To'     => $params{target},
-                           'Amount' => $params{value} } );
-    unless($web->success()) {
+                           'Amount' => $params{value}
+            }
+		);
+	}
+
+    unless($found && $web->success()) {
         $self->{error} = 'Unable to retrieve webform';
         return;
     }
