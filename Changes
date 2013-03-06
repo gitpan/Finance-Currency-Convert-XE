@@ -1,6 +1,8 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
+0.23	06/03/2013
+	- patch to fix new html layout - thanks to Gareth Tunley
 0.22	18/10/2012
-	- patch to fix new html layout - thanks to Gareth Tunkey
+	- patch to fix new html layout - thanks to Gareth Tunley
 0.21	17/07/2012
 	- patch to fix new html layout - thanks to Michael
 0.20	19/06/2012

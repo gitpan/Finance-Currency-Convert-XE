@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.21';
+$VERSION = '0.23';
 
 #--------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ use HTML::TokeParser;
 #Constants                                                                #
 ###########################################################################
 
-use constant    UCC => 'http://www.xe.com/ucc';
+use constant    UCC => 'http://www.xe.com/currencyconverter';
 
 ###########################################################################
 #Variables                                                                #
@@ -238,6 +238,7 @@ sub convert {
 
     # get the base site
     $web->get( UCC );
+
     unless($web->success()) {
         $self->{error} = 'Unable to retrieve webpage';
         return;
@@ -248,7 +249,7 @@ sub convert {
 	my $found = 0;
 
 	foreach my $form (@forms) {
-		if ($form->action eq 'http://www.xe.com/ucc/convert/') {
+		if ($form->action eq 'http://www.xe.com/currencyconverter/convert/') {
 			$found = 1;
 			last;
 		}
