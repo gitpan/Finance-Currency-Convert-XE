@@ -1,4 +1,6 @@
 Revision history for Perl extension Finance::Currency::Convert::XE.
+0.25    12/06/2012
+        - Fixed tests
 0.24    12/06/2013
         - Update currency list
 0.23	06/03/2013

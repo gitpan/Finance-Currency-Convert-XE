@@ -36,10 +36,10 @@ SKIP: {
 
 	my @currencies = $obj->currencies;
 
-	is(scalar(@currencies),170,'... correct number of currencies');
+	is(scalar(@currencies),169,'... correct number of currencies');
 	is($currencies[0],  'AED','... valid currency: first');
 	is($currencies[47], 'GBP','... valid currency: GBP');
-	is($currencies[169],'ZWD','... valid currency: last');
+	is($currencies[168],'ZWD','... valid currency: last');
 
 	$value = $obj->convert(
                   'source' => 'GBP',
@@ -178,16 +178,16 @@ SKIP: {
 	isa_ok($obj,'Finance::Currency::Convert::XE','... got the object');
 
 	my @currencies = $obj->currencies;
-	is(scalar(@currencies),170,'... correct number of currencies');
+	is(scalar(@currencies),169,'... correct number of currencies');
 
     $obj->add_currencies(
                     ZZZ => {text => 'An Example', symbol => '$'},
                     ZZY => {text => 'Testing'} );
 	@currencies = $obj->currencies;
-	is(scalar(@currencies),172,'... correct number of currencies');
+	is(scalar(@currencies),171,'... correct number of currencies');
 
-	is($currencies[170],'ZZY','... valid currency: new penultimate');
-	is($currencies[171],'ZZZ','... valid currency: new last');
+	is($currencies[169],'ZZY','... valid currency: new penultimate');
+	is($currencies[170],'ZZZ','... valid currency: new last');
 
 	my $value = $obj->convert(
 			  'source' => 'ZZY',
